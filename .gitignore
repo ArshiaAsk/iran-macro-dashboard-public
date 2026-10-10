@@ -1,0 +1,18 @@
+# Public dashboard deploy bundle.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets and local configuration.
+.env
+.streamlit/secrets.toml
+
+# The DuckDB artifact is downloaded at runtime, never committed.
+*.duckdb
+*.duckdb.wal
+
+# Database dumps and backups must never be committed.
+*.bak
+*.dump
