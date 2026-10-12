@@ -48,6 +48,16 @@ def _is_public_bundle() -> bool:
 _IS_PUBLIC_BUNDLE_DEFAULT: bool = _is_public_bundle()
 
 
+def is_public_bundle() -> bool:
+    """True when the running code is the generated public-deploy bundle.
+
+    The bundle ships no PostgreSQL driver, so the backend resolver uses this to
+    treat a missing DuckDB source as a configuration error (reported with the
+    friendly startup message) instead of falling back to PostgreSQL.
+    """
+    return _IS_PUBLIC_BUNDLE_DEFAULT
+
+
 def get_setting(name: str, default: str | None = None) -> str | None:
     """Return a setting from the environment, else Streamlit secrets, else default.
 

@@ -12,7 +12,8 @@ import streamlit as st
 from dashboard.artifact import ArtifactUnavailableError
 from dashboard.components.direction import inject_direction_css
 from dashboard.components.layout import render_public_disclaimer, render_status_dot, render_top_bar
-from dashboard.connection import get_connection
+from dashboard.connection import DuckDBConnection, get_connection
+from dashboard.diagnostics import log_failure
 from dashboard.i18n import t
 from dashboard.navigation import GROUPS, PAGES, PageSpec, page_script_path
 from dashboard.public_mode import require_page_visible, visible_pages
@@ -130,12 +131,24 @@ def _data_backend_ready() -> bool:
 
     Resolving the connection may download the DuckDB artifact; a failure there is
     a deployment problem, not a bug, so it is reported with a friendly message
-    rather than a traceback.
+    rather than a traceback. The failure itself is recorded (stage marker,
+    exception class, sanitised message) so the Cloud log is not silent.
+
+    The DuckDB engine opens the file lazily, so a *present but unreadable*
+    artifact (corrupt, or written by an incompatible DuckDB version) would
+    otherwise fail on the first page query and surface as a traceback. Probing it
+    here turns that into the same friendly banner, with the ``duckdb-open-failed``
+    stage recorded by :meth:`dashboard.connection.DuckDBConnection.test_connection`.
+    The PostgreSQL backend is deliberately not probed: a transient outage there is
+    shown by each page's error state, not by blanking the whole app.
     """
     try:
-        get_connection()
-    except ArtifactUnavailableError:
+        connection = get_connection()
+    except ArtifactUnavailableError as exc:
+        log_failure(getattr(exc, "stage", "unknown"), exc)
         return False
+    if isinstance(connection, DuckDBConnection):
+        return connection.test_connection()
     return True
 
 

@@ -23,6 +23,7 @@
     "dashboard/components/tables.py",
     "dashboard/components/tokens.py",
     "dashboard/connection.py",
+    "dashboard/diagnostics.py",
     "dashboard/formatting.py",
     "dashboard/i18n.py",
     "dashboard/labels.py",
@@ -58,6 +59,7 @@
     "src/utils/exceptions.py",
     "src/utils/logging.py",
     "src/utils/persian.py",
+    "src/utils/sanitize.py",
     "static/OFL.txt",
     "static/Vazirmatn.ttf",
     "streamlit_app.py"
